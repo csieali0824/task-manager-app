@@ -1,0 +1,21 @@
+Chat 002 — Revert backend port from 8082 to default 8080
+Tool: Claude Code (Claude, Anthropic)
+Date: 2026-08-20
+
+Purpose of AI use:
+- Apply a small, mechanical multi-file edit (port number change) and confirm both builds still
+  pass afterward.
+
+Summary of exchange:
+- User asked why the backend ran on 8082 and frontend on 5173 instead of the "usual" 8080/3000.
+  Assistant explained: 8082 was chosen only because another local project on this machine
+  (D:\rfq) already occupies 8080 (legacy JSP) and 8081 (its Spring Boot backend); 5173 was never
+  changed — it's simply Vite's own default dev port, not a customization (3000 is that other
+  project's own override, not a Vite default).
+- User confirmed task-manager-app is independent of that other project and asked to change the
+  backend back to the conventional default port 8080, and to commit the change.
+- Assistant updated:
+    backend/src/main/resources/application.yml   (server.port: 8082 -> 8080)
+    frontend/vite.config.ts                       (dev proxy target -> http://localhost:8080)
+    README.md                                     (all localhost:8082 references -> 8080)
+  then re-ran `mvn clean verify` and `npm run build` to confirm both still pass before committing.

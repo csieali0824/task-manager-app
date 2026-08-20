@@ -17,7 +17,7 @@ delete tasks.
 
 ## Running locally
 
-### Backend (port 8082)
+### Backend (port 8080)
 
 ```bash
 cd backend
@@ -35,15 +35,15 @@ npm run dev
 ```
 
 Open `http://localhost:5173`. The Vite dev server proxies `/api/*` to
-`http://localhost:8082`, so no CORS configuration is needed in development.
+`http://localhost:8080`, so no CORS configuration is needed in development.
 
 ## Accessing the OpenAPI spec and domain model
 
 With the backend running:
 
-- **Swagger UI** (interactive, browsable): `http://localhost:8082/swagger-ui.html`
-- **Raw OpenAPI JSON**: `http://localhost:8082/v3/api-docs`
-- **H2 console** (inspect the in-memory DB): `http://localhost:8082/h2-console`
+- **Swagger UI** (interactive, browsable): `http://localhost:8080/swagger-ui.html`
+- **Raw OpenAPI JSON**: `http://localhost:8080/v3/api-docs`
+- **H2 console** (inspect the in-memory DB): `http://localhost:8080/h2-console`
   (JDBC URL `jdbc:h2:mem:taskdb`, user `sa`, empty password)
 
 ### Domain model
