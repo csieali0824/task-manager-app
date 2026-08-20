@@ -1,0 +1,67 @@
+Chat 001 — AI-assisted scaffolding of Task Manager full-stack app
+Tool: Claude Code (Claude, Anthropic)
+Date: 2026-08-20
+
+Purpose of AI use:
+- Generate the initial Spring Boot 3 + Vue 3 project skeleton (directory layout, pom.xml,
+  Vue/TS scaffold) instead of hand-typing boilerplate.
+- Produce CRUD boilerplate (entity / repository / service / controller / DTOs on the backend;
+  API client / components on the frontend) from a plain-language description of the required
+  features (view / create / edit / mark complete-incomplete / delete tasks).
+- Diagnose and fix a runtime dependency-compatibility issue (springdoc-openapi 2.6.0 threw
+  NoSuchMethodError against Spring Boot 3.5.3 / Spring Framework 6.2.8; resolved by bumping
+  springdoc to 2.8.6).
+- Wire up OpenAPI documentation (springdoc) and verify it end-to-end with curl before writing
+  this record.
+
+Summary of exchange:
+1. User asked how to publish this assignment's source code as a GitHub repository so an
+   interviewer could review/run it. Assistant explained the end-to-end process (local project
+   setup, GitHub repo creation, README/OpenAPI/domain-model documentation requirements, and the
+   assignment's AI-usage disclosure rule) without making any changes yet.
+2. User said "開始動手" (start building). Assistant asked three clarifying questions (project
+   location, database choice, GitHub repo status) via a short Q&A, then:
+   - Discovered start.spring.io no longer serves Spring Boot 3.x (only >=4.0.0 as of this date),
+     so hand-wrote pom.xml pinned to the last Spring Boot 3.x GA release (3.5.3) to satisfy the
+     assignment's explicit "Spring Boot 3" requirement.
+   - Hand-wrote the backend: Task entity, TaskRepository, TaskService, TaskController (REST:
+     GET/POST/PUT/PATCH .../complete/.../incomplete/DELETE under /api/tasks), TaskRequest/
+     TaskResponse DTOs with bean validation, and a @RestControllerAdvice for 404/400 handling.
+   - Configured H2 in-memory DB and springdoc-openapi for automatic OpenAPI/Swagger UI, on port
+     8082 (chosen to avoid clashing with other local projects' 8080/8081 on this machine).
+   - Scaffolded the frontend with `npm create vue@latest` (TypeScript, no router/pinia/vitest),
+     removed the generated boilerplate (HelloWorld/TheWelcome/WelcomeItem/logo), and wrote
+     TaskForm.vue / TaskList.vue / TaskItem.vue / App.vue plus a typed fetch-based API client
+     (src/api/tasks.ts) and Task/TaskInput types. Added a Vite dev-server proxy for /api so the
+     frontend can call the backend without CORS configuration.
+   - Ran `mvn clean verify` (backend) and `npm run type-check && npm run build` (frontend) to
+     confirm both sides are green.
+   - Started both servers and smoke-tested the full CRUD flow, validation errors, 404 handling,
+     and the OpenAPI docs / Swagger UI endpoints with curl; confirmed the Vite dev proxy
+     correctly forwards /api/tasks to the backend.
+   - Hit and fixed the springdoc/Spring Boot version mismatch described above.
+3. Per the assignment's AI-usage instructions, added `// [AI assisted 001]` comments to the
+   AI-generated source files and recorded this rationale in this chat-records/001.chat file.
+
+Files touched (all newly created in this session):
+  backend/pom.xml
+  backend/src/main/resources/application.yml
+  backend/src/main/java/com/taskmanager/TaskManagerApplication.java
+  backend/src/main/java/com/taskmanager/entity/Task.java
+  backend/src/main/java/com/taskmanager/dto/TaskRequest.java
+  backend/src/main/java/com/taskmanager/dto/TaskResponse.java
+  backend/src/main/java/com/taskmanager/repository/TaskRepository.java
+  backend/src/main/java/com/taskmanager/service/TaskService.java
+  backend/src/main/java/com/taskmanager/controller/TaskController.java
+  backend/src/main/java/com/taskmanager/exception/TaskNotFoundException.java
+  backend/src/main/java/com/taskmanager/exception/ApiExceptionHandler.java
+  backend/src/test/java/com/taskmanager/TaskControllerIT.java
+  frontend/src/types/task.ts
+  frontend/src/api/tasks.ts
+  frontend/src/components/TaskForm.vue
+  frontend/src/components/TaskItem.vue
+  frontend/src/components/TaskList.vue
+  frontend/src/App.vue
+  frontend/vite.config.ts (added dev proxy)
+  README.md
+  .gitignore
