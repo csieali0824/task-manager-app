@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: task-manager-backend
+    name: task-manager-app
   datasource:
     url: jdbc:h2:mem:taskdb
     driver-class-name: org.h2.Driver

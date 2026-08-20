@@ -20,9 +20,11 @@ delete tasks.
 ### Backend (port 8080)
 
 ```bash
-cd backend
 mvn spring-boot:run
 ```
+
+(Run from the repository root — the Maven project lives at the root, with the
+Vue frontend in `frontend/`.)
 
 The H2 database is in-memory and reset on every restart — no setup required.
 
@@ -48,7 +50,7 @@ With the backend running:
 
 ### Domain model
 
-A single `Task` entity (`backend/src/main/java/com/taskmanager/entity/Task.java`):
+A single `Task` entity (`src/main/java/com/taskmanager/entity/Task.java`):
 
 | Field         | Type      | Notes                                   |
 |---------------|-----------|------------------------------------------|
@@ -74,7 +76,6 @@ A single `Task` entity (`backend/src/main/java/com/taskmanager/entity/Task.java`
 ## Running tests
 
 ```bash
-cd backend
 mvn verify
 ```
 
@@ -93,6 +94,13 @@ This project was built with AI assistance (Claude Code). AI was used to:
   components) from a plain-language description of the required features.
 - Diagnose and fix a dependency-compatibility issue between springdoc-openapi and Spring Boot.
 - Wire up and verify the OpenAPI documentation end-to-end.
+- Redesign the frontend UI with Tailwind CSS, add completion-gated edit/delete behavior, and
+  restructure the repository so the Maven project lives at the root.
 
-Code sections generated with AI assistance are marked `// [AI assisted 001]`. The corresponding
-conversation record is in [`chat-records/001.chat`](chat-records/001.chat).
+Code sections generated with AI assistance are marked `// [AI assisted <nnn>]`, where `<nnn>`
+refers to the corresponding conversation record in [`chat-records/`](chat-records/):
+
+- [`001.chat`](chat-records/001.chat) — initial full-stack scaffolding and CRUD implementation
+- [`002.chat`](chat-records/002.chat) — backend port revert (8082 → 8080)
+- [`003.chat`](chat-records/003.chat) — Tailwind UI redesign, edit/delete guard, project
+  restructure (Maven project moved to repo root)
