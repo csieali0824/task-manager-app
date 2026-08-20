@@ -1,35 +1,69 @@
-@import './base.css';
+/* [AI assisted 003] */
+@import 'tailwindcss';
 
-#app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  font-weight: normal;
+@theme {
+  --font-sans:
+    'Inter', 'Noto Sans TC', ui-sans-serif, system-ui, -apple-system,
+    'Segoe UI', Roboto, sans-serif;
 }
 
-a,
-.green {
-  text-decoration: none;
-  color: hsla(160, 100%, 37%, 1);
-  transition: 0.4s;
-  padding: 3px;
-}
-
-@media (hover: hover) {
-  a:hover {
-    background-color: hsla(160, 100%, 37%, 0.2);
+@layer base {
+  html {
+    font-family: var(--font-sans);
+    font-feature-settings: 'cv11', 'ss01';
+    -webkit-font-smoothing: antialiased;
   }
-}
 
-@media (min-width: 1024px) {
   body {
-    display: flex;
-    place-items: center;
+    @apply bg-[#fafafa] text-slate-900 dark:bg-[#09090f] dark:text-slate-100;
   }
 
-  #app {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    padding: 0 2rem;
+  ::selection {
+    @apply bg-indigo-500/25;
   }
+}
+
+@layer utilities {
+  /* Soft radial accent glow behind the page header */
+  .bg-page-glow {
+    background-image: radial-gradient(
+      600px 320px at 50% -80px,
+      rgb(99 102 241 / 0.09),
+      transparent 70%
+    );
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .bg-page-glow {
+      background-image: radial-gradient(
+        600px 320px at 50% -80px,
+        rgb(99 102 241 / 0.16),
+        transparent 70%
+      );
+    }
+  }
+}
+
+/* List enter/leave animations (Vue TransitionGroup) */
+.task-move,
+.task-enter-active,
+.task-leave-active {
+  transition:
+    opacity 0.25s ease,
+    transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.task-enter-from {
+  opacity: 0;
+  transform: translateY(-6px) scale(0.98);
+}
+
+.task-leave-to {
+  opacity: 0;
+  transform: translateY(4px) scale(0.98);
+}
+
+.task-leave-active {
+  position: absolute;
+  width: 100%;
 }
