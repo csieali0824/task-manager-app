@@ -1,0 +1,59 @@
+Chat 004 — 前端改版為淺色紙感風格、icon 按鈕、自製提醒視窗與表單驗證
+工具：Claude Code（Claude, Anthropic）
+日期：2026-08-21 ～ 2026-08-22
+
+AI 使用目的：
+- 依使用者回饋將 UI 從深色漸層風格改為淺色「紙感」工具風格，並移除使用者
+  認為過於「AI 模板感」的視覺元素。
+- 將編輯／刪除按鈕改為 icon 並常駐顯示，取消 hover 才浮現的行為。
+- 以自製的 AlertDialog 元件取代瀏覽器原生 window.alert，讓提醒視窗樣式與
+  頁面一致。
+- 以自製表單驗證取代瀏覽器原生 HTML5 驗證提示。
+- 移除 vite-plugin-vue-devtools，避免展示時出現開發者工具浮動列。
+- 回答開發環境相關問題（Tailwind class 無法 Ctrl+點擊跳轉的原因與調整方式、
+  H2 in-memory 資料庫的查詢位置與外部工具連不上的原因）。
+
+對話過程摘要：
+1. 使用者提出三點：移除標題前的打勾 logo、移除進度條與完成任務的刪除線、
+   版型太有「AI 生成感」且希望改為淺色。Assistant 重新設計為 Notion / Things
+   風格：暖白背景（#f7f6f3）、強制淺色（color-scheme: light）、標題列以底線
+   分隔、底線式輸入框、單一白色面板 + 細分隔線的任務清單、方形 checkbox
+   （勾選填深綠色）、黑底主按鈕；完成狀態不再使用刪除線。
+2. 使用者再提四點：取消 hover 才顯示按鈕（改常駐）、按鈕改用 icon（鉛筆／
+   垃圾桶）、移除「已完成」文字標籤、提醒視窗與新版淺色風格不一致。
+   Assistant 新增 AlertDialog.vue（白底面板、遮罩、可點遮罩或 Esc 關閉、
+   確定鈕自動聚焦），App.vue 改用它取代 window.alert。
+3. 使用者要求提醒視窗的垂直位置對齊新增任務表單一帶，Assistant 將對話框
+   改為靠上顯示（items-start + pt-36）。
+4. 使用者詢問 Tailwind utility class 為何無法 Ctrl+點擊導向檔案。Assistant
+   說明 Tailwind 是 build 時動態產生 CSS、沒有實體定義檔可跳轉，並說明三個
+   調整層次（改元件 class 字串／改 main.css 的 @theme 設計 token／用元件或
+   @layer components 封裝共用樣式），以及 IDE 的 Tailwind plugin 支援。
+5. 使用者詢問空標題送出時瀏覽器的「請填寫這個欄位」提示來自哪裡。Assistant
+   說明那是 input 的 required 屬性觸發的原生 HTML5 驗證，並依使用者選擇改為
+   完全自製：form 加 novalidate、送出時檢查標題、錯誤時欄位底線變紅並顯示
+   紅字訊息（輸入即清除、切換編輯模式也清除、加上 aria-invalid）。
+6. 使用者回報錯誤紅字出現時會把旁邊欄位往下推，Assistant 將錯誤訊息改為
+   absolute 定位（不佔版面高度），維持欄位底部對齊。
+7. 使用者發現畫面下方有 Vue devtools 浮動工具列，詢問是否有設定檔預設開啟。
+   Assistant 說明來源是 scaffold 附帶的 vite-plugin-vue-devtools（僅開發模式
+   出現），並自 vite.config.ts 移除該 plugin、npm uninstall 該套件。
+8. 使用者詢問要到哪張 table 查詢任務資料。Assistant 說明 Task entity 未指定
+   @Table，預設對應 TASK 表，並列出欄位對應（camelCase → snake_case）。
+   使用者以 IntelliJ 資料庫工具連線時出現 Table "TASK" not found，Assistant
+   說明 in-memory H2 只存在於後端 JVM 內、外部工具連線會建立另一個空資料庫，
+   建議改用內建的 H2 web console（/h2-console），使用者確認成功。
+9. 期間使用者亦手動修改 TaskForm.vue（移除 placeholder、調整欄位寬度實驗），
+   Assistant 配合現狀調整。
+
+異動檔案：
+  frontend/vite.config.ts                    （移除 vite-plugin-vue-devtools）
+  frontend/package.json、package-lock.json  （移除 vite-plugin-vue-devtools）
+  frontend/src/assets/main.css               （淺色主題、強制 light、動畫調整）
+  frontend/src/components/BaseButton.vue     （淺色按鈕樣式）
+  frontend/src/components/AlertDialog.vue    （新增：自製提醒視窗）
+  frontend/src/components/TaskForm.vue       （底線式輸入框、自製驗證）
+  frontend/src/components/TaskItem.vue       （icon 按鈕常駐、方形 checkbox、
+                                               移除刪除線、保留「已完成」標籤）
+  frontend/src/components/TaskList.vue       （白色面板 + 分隔線清單）
+  frontend/src/App.vue                       （移除 logo 與進度條、接上 AlertDialog）

@@ -1,6 +1,5 @@
 <script setup lang="ts">
-// [AI assisted 001, 003]
-import BaseButton from '@/components/BaseButton.vue'
+// [AI assisted 001, 003, 004]
 import type { Task } from '@/types/task'
 
 defineProps<{
@@ -15,27 +14,25 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <li
-    class="group flex items-center gap-3.5 rounded-2xl bg-white/80 px-4 py-3.5 shadow-[0_1px_2px_rgb(0_0_0/0.04)] ring-1 ring-slate-900/[0.07] backdrop-blur transition-all duration-200 hover:shadow-[0_4px_16px_-4px_rgb(0_0_0/0.08)] hover:ring-slate-900/[0.12] dark:bg-white/[0.04] dark:ring-white/10 dark:hover:bg-white/[0.06] dark:hover:ring-white/[0.15]"
-  >
+  <li class="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-stone-50">
     <button
       type="button"
       role="checkbox"
       :aria-checked="task.completed"
       :aria-label="task.completed ? '標記為未完成' : '標記為已完成'"
-      class="flex size-[22px] shrink-0 cursor-pointer items-center justify-center rounded-full transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+      class="flex size-[18px] shrink-0 cursor-pointer items-center justify-center rounded-[4px] border transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-700"
       :class="
         task.completed
-          ? 'bg-gradient-to-b from-indigo-500 to-indigo-600 shadow-[0_1px_4px_rgb(99_102_241/0.4)]'
-          : 'ring-[1.5px] ring-inset ring-slate-300 hover:ring-indigo-400 dark:ring-slate-600 dark:hover:ring-indigo-400'
+          ? 'border-emerald-700 bg-emerald-700'
+          : 'border-stone-400 bg-white hover:border-emerald-700'
       "
       @click="emit('toggle', task)"
     >
       <svg
+        v-if="task.completed"
         viewBox="0 0 12 12"
         fill="none"
-        class="size-3 text-white transition-all duration-200"
-        :class="task.completed ? 'scale-100 opacity-100' : 'scale-50 opacity-0'"
+        class="size-3 text-white"
         aria-hidden="true"
       >
         <path
@@ -49,34 +46,55 @@ const emit = defineEmits<{
     </button>
 
     <div class="min-w-0 flex-1">
-      <p
-        class="truncate text-sm font-medium transition-colors duration-200"
-        :class="
-          task.completed
-            ? 'text-slate-400 line-through decoration-slate-300 dark:text-slate-500 dark:decoration-slate-600'
-            : 'text-slate-900 dark:text-white'
-        "
-      >
+      <p class="truncate text-sm text-stone-900">
         {{ task.title }}
+        <span
+          v-if="task.completed"
+          class="ml-1.5 align-middle text-[11px] font-medium text-emerald-700"
+        >
+          已完成
+        </span>
       </p>
-      <p
-        v-if="task.description"
-        class="mt-0.5 truncate text-[13px] transition-colors duration-200"
-        :class="
-          task.completed
-            ? 'text-slate-300 dark:text-slate-600'
-            : 'text-slate-500 dark:text-slate-400'
-        "
-      >
+      <p v-if="task.description" class="mt-0.5 truncate text-[13px] text-stone-500">
         {{ task.description }}
       </p>
     </div>
 
-    <div
-      class="flex shrink-0 gap-1.5 transition-opacity duration-150 sm:opacity-0 sm:group-focus-within:opacity-100 sm:group-hover:opacity-100"
-    >
-      <BaseButton variant="secondary" @click="emit('edit', task)">編輯</BaseButton>
-      <BaseButton variant="danger" @click="emit('remove', task)">刪除</BaseButton>
+    <div class="flex shrink-0 gap-1">
+      <button
+        type="button"
+        aria-label="編輯"
+        title="編輯"
+        class="flex size-8 items-center justify-center rounded-md text-stone-400 transition-colors hover:bg-stone-200/60 hover:text-stone-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-stone-500"
+        @click="emit('edit', task)"
+      >
+        <svg viewBox="0 0 16 16" fill="none" class="size-4" aria-hidden="true">
+          <path
+            d="M11.3 2.3a1 1 0 0 1 1.4 0l1 1a1 1 0 0 1 0 1.4L6 12.4l-3 .6.6-3 7.7-7.7Z"
+            stroke="currentColor"
+            stroke-width="1.4"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+      </button>
+      <button
+        type="button"
+        aria-label="刪除"
+        title="刪除"
+        class="flex size-8 items-center justify-center rounded-md text-stone-400 transition-colors hover:bg-red-50 hover:text-red-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500"
+        @click="emit('remove', task)"
+      >
+        <svg viewBox="0 0 16 16" fill="none" class="size-4" aria-hidden="true">
+          <path
+            d="M2.5 4h11M6.5 4V2.8a.8.8 0 0 1 .8-.8h1.4a.8.8 0 0 1 .8.8V4m2.7 0-.5 9.2a1 1 0 0 1-1 .95H5.3a1 1 0 0 1-1-.95L3.8 4M6.5 7v4.5M9.5 7v4.5"
+            stroke="currentColor"
+            stroke-width="1.3"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+      </button>
     </div>
   </li>
 </template>

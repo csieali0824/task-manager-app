@@ -104,3 +104,5 @@ refers to the corresponding conversation record in [`chat-records/`](chat-record
 - [`002.chat`](chat-records/002.chat) — backend port revert (8082 → 8080)
 - [`003.chat`](chat-records/003.chat) — Tailwind UI redesign, edit/delete guard, project
   restructure (Maven project moved to repo root)
+- [`004.chat`](chat-records/004.chat) — light "paper" UI restyle, icon action buttons,
+  custom alert dialog and form validation, dev-tools cleanup
