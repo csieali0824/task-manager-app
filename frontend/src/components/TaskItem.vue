@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// [AI assisted 001, 003, 004]
+// [AI assisted 001, 002, 003]
 import type { Task } from '@/types/task'
 
 defineProps<{

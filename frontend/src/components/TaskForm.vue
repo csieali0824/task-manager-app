@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// [AI assisted 001, 003, 004]
+// [AI assisted 001, 002, 003]
 import { reactive, ref, watch } from 'vue'
 import BaseButton from '@/components/BaseButton.vue'
 import type { Task, TaskInput } from '@/types/task'

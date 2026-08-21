@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// [AI assisted 003, 004]
+// [AI assisted 002, 003]
 import { computed } from 'vue'
 
 const props = withDefaults(

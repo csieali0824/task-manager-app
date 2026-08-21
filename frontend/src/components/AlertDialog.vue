@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// [AI assisted 004]
+// [AI assisted 003]
 import BaseButton from '@/components/BaseButton.vue'
 
 defineProps<{

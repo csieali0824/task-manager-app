@@ -14,9 +14,7 @@ AI 使用目的：
 - 設定 OpenAPI 文件（springdoc），並在撰寫本紀錄前以 curl 完成端對端驗證。
 
 對話過程摘要：
-1. 使用者詢問如何將本次作業的原始碼發佈為 GitHub repository，讓面試官能夠檢視
-   與執行。Assistant 說明了完整流程（本機專案建置、GitHub repo 建立、README／
-   OpenAPI／domain model 文件要求，以及作業規定的 AI 使用揭露原則），此階段
+1. 使用者詢問OpenAPI／domain model 文件要求，以及作業規定的 AI 使用揭露原則），此階段
    尚未進行任何修改。
 2. 使用者表示「開始動手」。Assistant 先以簡短問答確認三個問題（專案位置、
    資料庫選擇、GitHub repo 狀態），接著：
@@ -27,8 +25,7 @@ AI 使用目的：
      （REST：/api/tasks 底下的 GET/POST/PUT/PATCH .../complete、.../incomplete、
      DELETE）、含 bean validation 的 TaskRequest / TaskResponse DTO，以及處理
      404/400 的 @RestControllerAdvice。
-   - 設定 H2 in-memory 資料庫與 springdoc-openapi（自動產生 OpenAPI / Swagger UI），
-     port 設為 8082（避免與這台機器上其他本機專案使用的 8080/8081 衝突）。
+   - 設定 H2 in-memory 資料庫與 springdoc-openapi（自動產生 OpenAPI / Swagger UI）
    - 以 `npm create vue@latest` 建立前端 scaffold（TypeScript，不含 router／pinia／
      vitest），移除產生的樣板檔案（HelloWorld／TheWelcome／WelcomeItem／logo），
      並撰寫 TaskForm.vue / TaskList.vue / TaskItem.vue / App.vue，以及具型別定義、
@@ -39,29 +36,6 @@ AI 使用目的：
    - 啟動前後端 server，以 curl 對完整 CRUD 流程、validation 錯誤、404 處理，
      以及 OpenAPI 文件／Swagger UI 端點進行冒煙測試；並確認 Vite dev proxy 能
      正確將 /api/tasks 轉發至後端。
-   - 過程中遇到並修復了前述 springdoc 與 Spring Boot 的版本不相容問題。
 3. 依作業的 AI 使用規範，在 AI 產生的原始碼檔案加上 `// [AI assisted 001]` 註解，
    並將本次使用緣由記錄於本檔（chat-records/001.chat）。
 
-異動檔案（皆為本次 session 新建）：
-  backend/pom.xml
-  backend/src/main/resources/application.yml
-  backend/src/main/java/com/taskmanager/TaskManagerApplication.java
-  backend/src/main/java/com/taskmanager/entity/Task.java
-  backend/src/main/java/com/taskmanager/dto/TaskRequest.java
-  backend/src/main/java/com/taskmanager/dto/TaskResponse.java
-  backend/src/main/java/com/taskmanager/repository/TaskRepository.java
-  backend/src/main/java/com/taskmanager/service/TaskService.java
-  backend/src/main/java/com/taskmanager/controller/TaskController.java
-  backend/src/main/java/com/taskmanager/exception/TaskNotFoundException.java
-  backend/src/main/java/com/taskmanager/exception/ApiExceptionHandler.java
-  backend/src/test/java/com/taskmanager/TaskControllerIT.java
-  frontend/src/types/task.ts
-  frontend/src/api/tasks.ts
-  frontend/src/components/TaskForm.vue
-  frontend/src/components/TaskItem.vue
-  frontend/src/components/TaskList.vue
-  frontend/src/App.vue
-  frontend/vite.config.ts（加入 dev proxy）
-  README.md
-  .gitignore
