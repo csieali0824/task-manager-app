@@ -96,6 +96,7 @@ This project was built with AI assistance (Claude Code). AI was used to:
 - Wire up and verify the OpenAPI documentation end-to-end.
 - Redesign the frontend UI with Tailwind CSS, add completion-gated edit/delete behavior, and
   restructure the repository so the Maven project lives at the root.
+- Add unit and integration tests, and fix the build so the integration tests actually run.
 
 Code sections generated with AI assistance are marked `// [AI assisted <nnn>]`, where `<nnn>`
 refers to the corresponding conversation record in [`chat-records/`](chat-records/):
@@ -105,3 +106,5 @@ refers to the corresponding conversation record in [`chat-records/`](chat-record
   restructure (Maven project moved to repo root)
 - [`003.chat`](chat-records/003.chat) — light "paper" UI restyle, icon action buttons,
   custom alert dialog and form validation, dev-tools cleanup
+- [`004.chat`](chat-records/004.chat) — unit and integration tests for the service and error
+  handling, plus a maven-failsafe-plugin fix so `mvn verify` actually runs them
