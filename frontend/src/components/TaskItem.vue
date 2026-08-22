@@ -1,6 +1,7 @@
 <script setup lang="ts">
 // [AI assisted 001, 002, 003]
 import type { Task } from '@/types/task'
+import { Pencil, Trash2 } from "lucide-vue-next";
 
 defineProps<{
   task: Task
@@ -68,15 +69,7 @@ const emit = defineEmits<{
         class="flex size-8 items-center justify-center rounded-md text-stone-400 transition-colors hover:bg-stone-200/60 hover:text-stone-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-stone-500"
         @click="emit('edit', task)"
       >
-        <svg viewBox="0 0 16 16" fill="none" class="size-4" aria-hidden="true">
-          <path
-            d="M11.3 2.3a1 1 0 0 1 1.4 0l1 1a1 1 0 0 1 0 1.4L6 12.4l-3 .6.6-3 7.7-7.7Z"
-            stroke="currentColor"
-            stroke-width="1.4"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          />
-        </svg>
+        <Pencil :size="16" />
       </button>
       <button
         type="button"
@@ -85,15 +78,7 @@ const emit = defineEmits<{
         class="flex size-8 items-center justify-center rounded-md text-stone-400 transition-colors hover:bg-red-50 hover:text-red-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500"
         @click="emit('remove', task)"
       >
-        <svg viewBox="0 0 16 16" fill="none" class="size-4" aria-hidden="true">
-          <path
-            d="M2.5 4h11M6.5 4V2.8a.8.8 0 0 1 .8-.8h1.4a.8.8 0 0 1 .8.8V4m2.7 0-.5 9.2a1 1 0 0 1-1 .95H5.3a1 1 0 0 1-1-.95L3.8 4M6.5 7v4.5M9.5 7v4.5"
-            stroke="currentColor"
-            stroke-width="1.3"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          />
-        </svg>
+        <Trash2 :size="16" />
       </button>
     </div>
   </li>

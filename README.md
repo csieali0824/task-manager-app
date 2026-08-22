@@ -7,6 +7,8 @@ delete tasks.
 
 - **Backend**: Spring Boot 3.5.3 (Java 17), Spring Data JPA, H2 in-memory database
 - **Frontend**: Vue 3 + TypeScript (`<script setup>`), Vite
+- **Styling**: Tailwind CSS v4 (via `@tailwindcss/vite`)
+- **Icons**: [lucide-vue-next](https://lucide.dev) — SVG icon components
 - **API docs**: springdoc-openapi (OpenAPI 3 / Swagger UI, generated from the Spring controllers)
 
 ## Prerequisites
@@ -38,6 +40,48 @@ npm run dev
 
 Open `http://localhost:5173`. The Vite dev server proxies `/api/*` to
 `http://localhost:8080`, so no CORS configuration is needed in development.
+
+## Frontend UI notes
+
+### Icons instead of text labels
+
+The per-task row actions use [lucide-vue-next](https://lucide.dev) icon components instead
+of text buttons, so a long task list stays scannable:
+
+| Action | Icon | Component |
+|---------|------|------------------------------|
+| Edit    | ✏️   | `<Pencil :size="16" />`      |
+| Delete  | 🗑️   | `<Trash2 :size="16" />`      |
+
+Icons are imported per component, so only the ones actually used end up in the bundle:
+
+```vue
+<script setup lang="ts">
+import { Pencil, Trash2 } from 'lucide-vue-next'
+</script>
+
+<template>
+  <button type="button" aria-label="編輯" title="編輯" @click="emit('edit', task)">
+    <Pencil :size="16" />
+  </button>
+</template>
+```
+
+Two rules the icon buttons follow:
+
+- **Every icon-only button carries an `aria-label` and a `title`** — the label is what screen
+  readers announce, the title is the hover tooltip. Without them an icon button is unusable
+  with assistive technology.
+- **The form's primary actions keep their text** (`新增任務` / `儲存` / `取消`). Icons work for
+  repeated row actions where context makes them obvious; a submit button should say what it
+  does.
+
+### Other UI behavior
+
+- Edit and delete are gated on completion: acting on an unchecked task opens a custom
+  `AlertDialog` instead of the browser's `window.alert`, so it matches the page styling.
+- The task form uses `novalidate` with its own validation, replacing the browser's native
+  "please fill out this field" bubble with an inline message that fits the design.
 
 ## Accessing the OpenAPI spec and domain model
 

@@ -3,6 +3,7 @@
 import { reactive, ref, watch } from 'vue'
 import BaseButton from '@/components/BaseButton.vue'
 import type { Task, TaskInput } from '@/types/task'
+import { Check, Plus, X } from 'lucide-vue-next'
 
 const props = defineProps<{
   editingTask: Task | null
@@ -82,8 +83,11 @@ function onSubmit() {
       </label>
       <div class="flex shrink-0 gap-2 pt-2 sm:pt-0">
         <BaseButton type="submit" variant="primary">
+<!--          <Check v-if="editingTask" :size="16" />-->
+<!--          <Plus v-else :size="16" />-->
           {{ editingTask ? '儲存' : '新增任務' }}
         </BaseButton>
+<!--        <BaseButton v-if="editingTask" variant="ghost" @click="emit('cancel')"><X :size="16"/></BaseButton>-->
         <BaseButton v-if="editingTask" variant="ghost" @click="emit('cancel')">取消</BaseButton>
       </div>
     </div>
