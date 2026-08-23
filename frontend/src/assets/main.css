@@ -23,23 +23,3 @@
     @apply bg-emerald-700/15;
   }
 }
-
-/* List enter/leave animations (Vue TransitionGroup) */
-.task-move,
-.task-enter-active,
-.task-leave-active {
-  transition:
-    opacity 0.2s ease,
-    transform 0.25s ease;
-}
-
-.task-enter-from,
-.task-leave-to {
-  opacity: 0;
-  transform: translateY(-4px);
-}
-
-.task-leave-active {
-  position: absolute;
-  width: 100%;
-}

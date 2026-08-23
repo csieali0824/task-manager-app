@@ -18,12 +18,7 @@ const emit = defineEmits<{
   <p v-if="tasks.length === 0" class="py-12 text-center text-[13px] text-stone-400">
     目前沒有任務，從上方新增第一個。
   </p>
-  <TransitionGroup
-    v-else
-    tag="ul"
-    name="task"
-    class="relative divide-y divide-stone-200 rounded-lg border border-stone-300 bg-white"
-  >
+  <ul v-else class="divide-y divide-stone-200 rounded-lg border border-stone-300 bg-white">
     <TaskItem
       v-for="task in tasks"
       :key="task.id"
@@ -32,5 +27,5 @@ const emit = defineEmits<{
       @edit="emit('edit', $event)"
       @remove="emit('remove', $event)"
     />
-  </TransitionGroup>
+  </ul>
 </template>
