@@ -1,63 +1,59 @@
-Chat 004 — 補齊測試層級，並修復測試從未實際執行的建置設定問題
+Chat 004：補齊測試層級，並修掉測試從未實際執行的建置設定問題
 工具：Claude Code（Claude, Anthropic）
 日期：2026-08-22
 
 AI 使用目的：
-- 針對 ApiExceptionHandler 的兩條錯誤處理路徑（404 / 400）補上 integration test。
+- 為 ApiExceptionHandler 的兩條錯誤處理路徑（404 / 400）補上 integration test。
 - 新增 TaskService 的 unit test，補齊測試金字塔（原本只有 integration test）。
-- 診斷並修復 `mvn verify` 未實際執行任何測試的建置設定問題。
-- 回答一系列 Spring / JPA / 分層架構的觀念問題（詳細內容另存於非版控的技術問答筆記）。
+- 診斷並修掉 `mvn verify` 沒有實際執行任何測試的建置設定問題。
+- 回答一系列 Spring / JPA / 分層架構的觀念問題（詳細內容另存於非版控的技術問答
+  筆記）。
 
 對話過程摘要：
-1. 使用者詢問這個專案是否真的會執行到 ApiExceptionHandler。Assistant 分析兩個
+1. 使用者問這個專案是不是真的會執行到 ApiExceptionHandler。Assistant 分析兩個
    handler 的觸發條件：
-   - MethodArgumentNotValidException（400）：因前端 TaskForm 已有自訂驗證擋下空白
-     標題，透過網頁操作不會觸發；但從 Swagger UI / curl 直接呼叫 API 會觸發。
-   - TaskNotFoundException（404）：前端未呼叫 GET /api/tasks/{id}，但 update /
-     delete / complete / incomplete 在後端都會先經過 findById，因此在資料不同步時
-     （例如後端重啟導致 H2 in-memory 清空、但瀏覽器仍留著舊清單）會觸發。
-   並指出前端 tasks.ts 的錯誤處理讀取的 `message` 欄位，正是 ApiExceptionHandler
-   產生的欄位，前後端在錯誤格式上是對接好的。
-2. Assistant 提議補上這兩條路徑的測試，使用者同意。新增
+   - MethodArgumentNotValidException（400）：前端 TaskForm 已經有自訂驗證擋掉
+     空白標題，所以透過網頁操作不會觸發；但從 Swagger UI 或 curl 直接打 API 會
+     觸發。
+   - TaskNotFoundException（404）：前端沒有呼叫 GET /api/tasks/{id}，但 update、
+     delete、complete、incomplete 在後端都會先經過 findById，所以資料不同步時會
+     觸發，例如後端重啟導致 H2 in-memory 清空、瀏覽器卻還留著舊清單。
+   另外指出前端 tasks.ts 錯誤處理讀的 `message` 欄位，正是 ApiExceptionHandler
+   產生的欄位，前後端的錯誤格式是對接好的。
+2. Assistant 提議補上這兩條路徑的測試，使用者同意，於是新增
    returns404WhenTaskNotFound 與 returns400WhenTitleIsBlank 兩個測試。
-3. 執行 `mvn clean verify` 時發現一個既有缺陷：**測試從未被實際執行過**。原因是
+3. 執行 `mvn clean verify` 時發現一個既有缺陷：測試從來沒有被真的執行過。原因是
    TaskControllerIT 的類別名稱不符合 surefire 的預設命名規則（*Test / Test* /
-   *Tests / *TestCase），而負責執行 *IT 的 maven-failsafe-plugin 並未在
-   pom.xml 的 <build><plugins> 中宣告，因此 `mvn verify` 一直顯示 BUILD SUCCESS
-   卻沒有跑任何測試。
-   修復方式：在 pom.xml 補上 maven-failsafe-plugin 並綁定 integration-test /
-   verify 兩個 goal（版本由 spring-boot-starter-parent 管理）。
-4. 修復後首次執行有一個測試失敗，原因是使用者已自行將 TaskRequest 的驗證訊息改為
-   "task must not be blank" 並加上 @Schema 註解。Assistant 將斷言改為檢查
-   "title:" 與 "must not be blank" 兩個片段，避免綁死文案措辭。
-5. 使用者詢問為何測試類別要命名為 *IT。Assistant 說明 surefire（單元測試，test
+   *Tests / *TestCase），而負責執行 *IT 的 maven-failsafe-plugin 並沒有宣告在
+   pom.xml 的 <build><plugins> 裡，所以 `mvn verify` 一直顯示 BUILD SUCCESS，卻
+   一個測試都沒跑。修法是在 pom.xml 補上 maven-failsafe-plugin 並綁定
+   integration-test 與 verify 兩個 goal（版本由 spring-boot-starter-parent 管理）。
+4. 修好之後第一次執行有一個測試失敗，因為使用者已經自己把 TaskRequest 的驗證訊息
+   改成 "task must not be blank" 並加上 @Schema 註解。Assistant 把斷言改成檢查
+   "title:" 與 "must not be blank" 兩個片段，不綁死文案措辭。
+5. 使用者問為什麼測試類別要命名為 *IT。Assistant 說明 surefire（單元測試，test
    階段）與 failsafe（整合測試，integration-test / verify 階段）的分工、failsafe
-   「失敗不立即中斷、先執行清理」的設計，以及三種測試層級（純 unit test /
-   @WebMvcTest 切片測試 / @SpringBootTest 整合測試）的取捨。
-6. 依 Assistant 建議新增 TaskServiceTest：9 個 unit test，使用 Mockito 的 @Mock
-   與 ArgumentCaptor，以 `new TaskService(mockRepository)` 直接建構（不需啟動
-   Spring context），涵蓋查詢、DTO 轉 entity 的欄位搬運、更新、狀態切換、刪除，
-   以及找不到資料時不應觸發寫入操作的負面驗證。
-7. 使用者詢問要如何從 TaskControllerIT 得知 ApiExceptionHandler 確實有被執行。
-   Assistant 說明兩個測試的證據強度不同：
-   - 404 測試：TaskNotFoundException 未標註 @ResponseStatus，若無 handler 會是
-     500，因此斷言 404 本身即為證明。
-   - 400 測試：Spring 內建即會將 MethodArgumentNotValidException 對應為 400，
-     因此狀態碼不算證據，真正的證據是 body 中 "欄位名: 訊息" 的自訂格式。
-   並依使用者同意，於兩個測試補上 doesNotContain("path") 斷言（Spring Boot 內建
-   錯誤回應必含 path 欄位，自訂 handler 則無）與說明用的 Javadoc。
+   「失敗不立即中斷、先執行清理」的設計，以及三種測試層級的取捨：純 unit test、
+   @WebMvcTest 切片測試、@SpringBootTest 整合測試。
+6. 依 Assistant 建議新增 TaskServiceTest，9 個 unit test，用 Mockito 的 @Mock 與
+   ArgumentCaptor，以 `new TaskService(mockRepository)` 直接建構（不必啟動 Spring
+   context），涵蓋查詢、DTO 轉 entity 的欄位搬運、更新、狀態切換、刪除，以及找不到
+   資料時不應觸發寫入操作的負面驗證。
+7. 使用者問要怎麼從 TaskControllerIT 看出 ApiExceptionHandler 確實被執行到。
+   Assistant 說明兩個測試的證據強度不一樣：
+   - 404 測試：TaskNotFoundException 沒有標註 @ResponseStatus，少了 handler 就會
+     是 500，所以斷言 404 本身就是證明。
+   - 400 測試：Spring 內建就會把 MethodArgumentNotValidException 對應成 400，
+     狀態碼不算證據，真正的證據是 body 裡「欄位名: 訊息」的自訂格式。
+   使用者同意後，在兩個測試補上 doesNotContain("path") 斷言（Spring Boot 內建的
+   錯誤回應一定有 path 欄位，自訂 handler 則沒有）以及說明用的 Javadoc。
 
 驗證結果：
   mvn clean verify → surefire: Tests run 9（TaskServiceTest）
                      failsafe: Tests run 3（TaskControllerIT）
                      BUILD SUCCESS
 
-異動檔案：
-  pom.xml                                                     （新增 maven-failsafe-plugin）
-  src/test/java/com/taskmanager/TaskControllerIT.java         （新增 404/400 測試、強化斷言）
-  src/test/java/com/taskmanager/service/TaskServiceTest.java  （新增）
-  README.md                                                   （AI 揭露清單新增本紀錄）
 
-備註：本次一併提交的 src/main/java/com/taskmanager/dto/TaskRequest.java（新增
+備註：這次一併提交的 src/main/java/com/taskmanager/dto/TaskRequest.java（新增
 @Schema 註解、調整驗證訊息）與 frontend/vite.config.ts（註解形式的 port 備註）
-為使用者自行修改，非 AI 產生。
+是使用者自己改的，不是 AI 產生。

@@ -1,30 +1,29 @@
-Chat 002 — 前端 UI 全面重新設計（Tailwind CSS）、操作限制邏輯、專案結構調整
+Chat 002：前端 UI 改用 Tailwind CSS 重做、操作限制邏輯、專案結構調整
 工具：Claude Code（Claude, Anthropic）
 日期：2026-08-20 ～ 2026-08-21
 
 AI 使用目的：
-- 新增前端操作限制：未勾選（未完成）的任務按下「編輯」或「刪除」時，跳出提醒
-  視窗並阻止操作；只有已勾選（完成）的任務才能編輯或刪除。
-- 引入 Tailwind CSS v4（官方 @tailwindcss/vite plugin），參考國際頂尖產品
-  （Linear / Vercel / Stripe）的設計語言全面重新設計 UI。
+- 加上前端的操作限制：未勾選（未完成）的任務按「編輯」或「刪除」時跳出提醒視窗並
+  阻止操作，只有已勾選（完成）的任務可以編輯或刪除。
+- 引入 Tailwind CSS v4（官方的 @tailwindcss/vite plugin），參考 Linear、Vercel、
+  Stripe 的設計語言把 UI 整個重做。
 
 對話過程摘要：
-1. 使用者指出任務不論勾選與否都能編輯／刪除，希望改為「只有已勾選的任務才能
-   操作，未勾選時跳出提醒視窗」。Assistant 在 App.vue 的 onEdit / onRemove 加上
+1. 使用者指出任務不論勾選與否都能編輯或刪除，希望改成只有已勾選的任務才能操作，
+   未勾選時跳出提醒視窗。Assistant 在 App.vue 的 onEdit / onRemove 加上
    task.completed 檢查與 window.alert 提醒。
-2. 使用者要求改用 Tailwind CSS 並改善畫面美感。Assistant：
-   - 安裝 tailwindcss + @tailwindcss/vite，設定 vite.config.ts 與 main.css，
-     移除舊的 scaffold 樣式（base.css）。
-   - 新增可重用的 BaseButton.vue 元件（primary / secondary / danger / ghost
-     四種樣式）。
-   - 重寫 App.vue / TaskForm.vue / TaskList.vue / TaskItem.vue 的 template 與
-     樣式（功能邏輯不變）。
-3. 使用者進一步要求參考國外頂尖設計公司的水準。Assistant 二次打磨：
-   - index.html 引入 Inter + Noto Sans TC 字體（Google Fonts）。
-   - 頁面頂部加入靛藍 radial 光暈背景、毛玻璃卡片（backdrop blur + 髮絲級
-     邊框）、漸層進度條與完成度統計、漸層打勾 logo。
-   - 微互動：客製圓形 checkbox（勾選時漸層填色 + 打勾縮放動畫）、桌面版
-     hover 才浮現的編輯／刪除按鈕、TransitionGroup 列表進出場動畫、按鈕
-     按壓縮放回饋。
-   - 深色／淺色模式皆完整支援；介面文字改為繁體中文。
-   - 每次改動後皆以 npm run build（含 type-check）驗證通過。
+2. 使用者要求改用 Tailwind CSS 並改善畫面。Assistant：
+   - 安裝 tailwindcss 與 @tailwindcss/vite，設定 vite.config.ts 與 main.css，
+     移除舊的 scaffold 樣式 base.css。
+   - 新增可重用的 BaseButton.vue，有 primary、secondary、danger、ghost 四種樣式。
+   - 重寫 App.vue、TaskForm.vue、TaskList.vue、TaskItem.vue 的 template 與樣式，
+     功能邏輯不變。
+3. 使用者進一步要求對齊國外頂尖設計公司的水準，Assistant 又改了一輪：
+   - index.html 引入 Google Fonts 的 Inter 與 Noto Sans TC。
+   - 頁面頂部加上靛藍 radial 光暈背景、毛玻璃卡片（backdrop blur 加細邊框）、
+     漸層進度條與完成度統計、漸層打勾 logo。
+   - 互動細節：客製的圓形 checkbox（勾選時漸層填色，打勾帶縮放動畫）、桌面版
+     hover 才浮現的編輯與刪除按鈕、用 TransitionGroup 做的列表進出場動畫、按鈕
+     按壓的縮放回饋。
+   - 深色與淺色模式都支援，介面文字改成繁體中文。
+   - 每次改動後都用 npm run build（含 type-check）驗證。

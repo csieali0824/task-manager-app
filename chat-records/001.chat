@@ -1,41 +1,41 @@
-Chat 001 — 使用 AI 協助建置 Task Manager 全端應用程式
+Chat 001：用 AI 建置 Task Manager 全端應用程式
 工具：Claude Code（Claude, Anthropic）
 日期：2026-08-20
 
 AI 使用目的：
-- 產生 Spring Boot 3 + Vue 3 專案的初始骨架（目錄結構、pom.xml、Vue/TypeScript
-  scaffold），取代手動輸入樣板程式碼。
-- 依據需求功能的自然語言描述（檢視／新增／編輯／標記完成或未完成／刪除任務），
-  產生 CRUD 樣板程式碼（後端的 entity / repository / service / controller / DTO；
-  前端的 API client / components）。
-- 診斷並修復一個執行期的相依套件相容性問題（springdoc-openapi 2.6.0 在
-  Spring Boot 3.5.3 / Spring Framework 6.2.8 環境下拋出 NoSuchMethodError；
-  將 springdoc 升級至 2.8.6 後解決）。
-- 設定 OpenAPI 文件（springdoc），並在撰寫本紀錄前以 curl 完成端對端驗證。
+- 產生 Spring Boot 3 + Vue 3 的專案骨架（目錄結構、pom.xml、Vue/TypeScript
+  scaffold），省去手動輸入樣板程式碼。
+- 依需求功能的語言描述（檢視/新增/編輯/標記完成或未完成/刪除任務）產生 CRUD
+  樣板程式碼：後端的 entity、repository、service、controller、DTO，前端的 API
+  client 與 components。
+- 診斷並修掉一個執行期的相依套件相容問題。springdoc-openapi 2.6.0 在 Spring Boot
+  3.5.3 / Spring Framework 6.2.8 下會拋出 NoSuchMethodError，升到 2.8.6 後解決。
+- 設定 springdoc 產生 OpenAPI 文件，並在寫這份紀錄前用 curl 做過端對端驗證。
 
 對話過程摘要：
-1. 使用者詢問OpenAPI／domain model 文件要求，以及作業規定的 AI 使用揭露原則），此階段
-   尚未進行任何修改。
-2. 使用者表示「開始動手」。Assistant 先以簡短問答確認三個問題（專案位置、
-   資料庫選擇、GitHub repo 狀態），接著：
-   - 發現 start.spring.io 已不再提供 Spring Boot 3.x（截至當日僅提供 >= 4.0.0），
-     因此手動撰寫 pom.xml 並鎖定 Spring Boot 3.x 的最後一個 GA 版本（3.5.3），
-     以符合作業明確要求的「Spring Boot 3」。
-   - 手動撰寫後端程式：Task entity、TaskRepository、TaskService、TaskController
-     （REST：/api/tasks 底下的 GET/POST/PUT/PATCH .../complete、.../incomplete、
-     DELETE）、含 bean validation 的 TaskRequest / TaskResponse DTO，以及處理
+1. 使用者先問 OpenAPI 與 domain model 的文件要求，以及作業規定的 AI 使用揭露
+   原則，這個階段還沒有改動任何檔案。
+2. 使用者表示「開始動手」。Assistant 先用簡短問答確認專案位置、資料庫選擇、
+   GitHub repo 狀態三件事，接著：
+   - 發現 start.spring.io 已經不提供 Spring Boot 3.x（當日只提供 4.0.0 以上），
+     所以手動寫 pom.xml，鎖定 Spring Boot 3.x 的最後一個 GA 版本 3.5.3，符合作業
+     指定的 Spring Boot 3。
+   - 手動寫後端程式：Task entity、TaskRepository、TaskService、TaskController
+     （REST：/api/tasks 底下的 GET/POST/PUT、PATCH .../complete、.../incomplete、
+     DELETE）、帶 bean validation 的 TaskRequest / TaskResponse DTO，以及處理
      404/400 的 @RestControllerAdvice。
-   - 設定 H2 in-memory 資料庫與 springdoc-openapi（自動產生 OpenAPI / Swagger UI）
-   - 以 `npm create vue@latest` 建立前端 scaffold（TypeScript，不含 router／pinia／
-     vitest），移除產生的樣板檔案（HelloWorld／TheWelcome／WelcomeItem／logo），
-     並撰寫 TaskForm.vue / TaskList.vue / TaskItem.vue / App.vue，以及具型別定義、
-     以 fetch 為基礎的 API client（src/api/tasks.ts）和 Task / TaskInput 型別。
-     另在 Vite dev server 加上 /api 的 proxy 設定，讓前端呼叫後端時不需處理 CORS。
+   - 設定 H2 in-memory 資料庫，以及 springdoc-openapi（自動產生 OpenAPI 與
+     Swagger UI）。
+   - 用 `npm create vue@latest` 建前端 scaffold（TypeScript，不含 router、pinia、
+     vitest），刪掉產生出來的樣板檔案（HelloWorld、TheWelcome、WelcomeItem、
+     logo），改寫 TaskForm.vue / TaskList.vue / TaskItem.vue / App.vue，加上有
+     型別定義、以 fetch 為基礎的 API client（src/api/tasks.ts）和 Task / TaskInput
+     型別。另外在 Vite dev server 設定 /api 的 proxy，讓前端呼叫後端時不必處理
+     CORS。
    - 執行 `mvn clean verify`（後端）與 `npm run type-check && npm run build`
-     （前端），確認兩邊皆通過。
-   - 啟動前後端 server，以 curl 對完整 CRUD 流程、validation 錯誤、404 處理，
-     以及 OpenAPI 文件／Swagger UI 端點進行冒煙測試；並確認 Vite dev proxy 能
-     正確將 /api/tasks 轉發至後端。
+     （前端），兩邊都通過。
+   - 啟動前後端 server，用 curl 對完整 CRUD 流程、validation 錯誤、404 處理，以及
+     OpenAPI 文件與 Swagger UI 端點做smoke test，並確認 Vite dev proxy 會把
+     /api/tasks 正確轉發到後端。
 3. 依作業的 AI 使用規範，在 AI 產生的原始碼檔案加上 `// [AI assisted 001]` 註解，
-   並將本次使用緣由記錄於本檔（chat-records/001.chat）。
-
+   並把這次的使用緣由記錄在這個檔案（chat-records/001.chat）。
