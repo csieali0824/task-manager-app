@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // [AI assisted 001, 002, 003]
 import type { Task } from '@/types/task'
-import { Pencil, Trash2 } from "lucide-vue-next";
+import { Check, Pencil, Trash2 } from 'lucide-vue-next'
 
 defineProps<{
   task: Task
@@ -29,21 +29,7 @@ const emit = defineEmits<{
       "
       @click="emit('toggle', task)"
     >
-      <svg
-        v-if="task.completed"
-        viewBox="0 0 12 12"
-        fill="none"
-        class="size-3 text-white"
-        aria-hidden="true"
-      >
-        <path
-          d="M2.5 6.5 5 9l4.5-5.5"
-          stroke="currentColor"
-          stroke-width="1.8"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        />
-      </svg>
+      <Check v-if="task.completed" :size="12" :stroke-width="3" class="text-white" />
     </button>
 
     <div class="min-w-0 flex-1">
