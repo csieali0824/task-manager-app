@@ -17,6 +17,12 @@ const completedCount = computed(() => tasks.value.filter((t) => t.completed).len
 async function refresh() {
   try {
     tasks.value = await listTasks()
+
+    // 編輯中的任務可能已經不存在(刪除動作)
+    const editingId = editingTask.value?.id
+    if (editingId !== undefined && !tasks.value.some((t) => t.id === editingId)) {
+      editingTask.value = null
+    }
   } catch (err) {
     errorMessage.value = (err as Error).message
   }
