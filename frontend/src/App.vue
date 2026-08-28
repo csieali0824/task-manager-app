@@ -10,9 +10,13 @@ import type { Task, TaskInput } from '@/types/task'
 const tasks = ref<Task[]>([])
 const editingTask = ref<Task | null>(null)
 const errorMessage = ref('')
-const alertMessage = ref('')
+const pendingDelete = ref<Task | null>(null)
 
 const completedCount = computed(() => tasks.value.filter((t) => t.completed).length)
+
+const deleteMessage = computed(() =>
+  pendingDelete.value ? `確定要刪除「${pendingDelete.value.title}」嗎？` : '',
+)
 
 async function refresh() {
   try {
@@ -52,10 +56,6 @@ async function onToggle(task: Task) {
 }
 
 function onEdit(task: Task) {
-  if (!task.completed) {
-    alertMessage.value = '請先勾選完成此任務，才能進行編輯。'
-    return
-  }
   editingTask.value = task
 }
 
@@ -63,11 +63,16 @@ function onCancelEdit() {
   editingTask.value = null
 }
 
-async function onRemove(task: Task) {
-  if (!task.completed) {
-    alertMessage.value = '請先勾選完成此任務，才能進行刪除。'
-    return
-  }
+function onRemove(task: Task) {
+  // 只記下要刪的是哪一筆，實際刪除等使用者在確認視窗按下確定。
+  pendingDelete.value = task
+}
+
+async function confirmDelete() {
+  const task = pendingDelete.value
+  pendingDelete.value = null
+  if (!task) return
+
   try {
     await deleteTask(task.id)
     await refresh()
@@ -98,6 +103,11 @@ onMounted(refresh)
     <TaskForm :editing-task="editingTask" @submit="onSubmit" @cancel="onCancelEdit" />
     <TaskList :tasks="tasks" @toggle="onToggle" @edit="onEdit" @remove="onRemove" />
 
-    <AlertDialog :message="alertMessage" @close="alertMessage = ''" />
+    <AlertDialog
+      mode="confirm"
+      :message="deleteMessage"
+      @close="pendingDelete = null"
+      @confirm="confirmDelete"
+    />
   </main>
 </template>

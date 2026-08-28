@@ -2,12 +2,14 @@
 // [AI assisted 003]
 import BaseButton from '@/components/BaseButton.vue'
 
-defineProps<{
+const { mode = 'alert' } = defineProps<{
   message: string
+  mode?: 'alert' | 'confirm'
 }>()
 
 const emit = defineEmits<{
   close: []
+  confirm: []
 }>()
 </script>
 
@@ -25,8 +27,18 @@ const emit = defineEmits<{
         class="w-full max-w-xs rounded-lg border border-stone-200 bg-white p-5 shadow-xl"
       >
         <p class="text-sm/6 text-stone-800">{{ message }}</p>
-        <div class="mt-4 flex justify-end">
-          <BaseButton variant="primary" autofocus @click="emit('close')">確定</BaseButton>
+        <div class="mt-4 flex justify-end gap-2">
+          <BaseButton
+            v-if="mode === 'confirm'"
+            variant="secondary"
+            autofocus
+            @click="emit('close')"
+          >
+            取消
+          </BaseButton>
+          <BaseButton variant="primary" :autofocus="mode === 'alert'" @click="emit('confirm')">
+            確定
+          </BaseButton>
         </div>
       </div>
     </div>

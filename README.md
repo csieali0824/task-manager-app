@@ -77,9 +77,9 @@ the context makes them obvious, but a submit button should say what it does.
 
 ### Other UI behavior
 
-- Edit and delete are gated on completion. Acting on an unchecked task opens a custom
-  `AlertDialog` rather than the browser's `window.alert`, so the warning matches the page
-  styling.
+- Delete asks for confirmation first. The prompt is a custom `AlertDialog` in confirm mode
+  rather than the browser's `window.confirm`, so it matches the page styling; the task is only
+  removed after 確定 is pressed.
 - The task form uses `novalidate` with its own validation, which shows an inline message
   instead of the browser's native "please fill out this field" bubble.
 
