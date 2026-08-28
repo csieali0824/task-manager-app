@@ -112,10 +112,21 @@ A single `Task` entity (`src/main/java/com/taskmanager/entity/Task.java`):
 | GET    | `/api/tasks`                 | List all tasks                              |
 | GET    | `/api/tasks/{id}`            | Get a single task                           |
 | POST   | `/api/tasks`                 | Create a task                               |
-| PUT    | `/api/tasks/{id}`            | Update a task's title/description/completed |
-| PATCH  | `/api/tasks/{id}/complete`   | Mark a task as completed                    |
-| PATCH  | `/api/tasks/{id}/incomplete` | Mark a task as not completed                |
+| PUT    | `/api/tasks/{id}`            | Replace a task; all fields required         |
+| PATCH  | `/api/tasks/{id}`            | Partial update as JSON Merge Patch (RFC 7396). Send only the fields to change; body is `application/merge-patch+json` |
 | DELETE | `/api/tasks/{id}`            | Delete a task                               |
+
+Marking a task complete is a merge patch with one field:
+
+```bash
+curl -X PATCH http://localhost:8080/api/tasks/1 \
+  -H 'Content-Type: application/merge-patch+json' \
+  -d '{"completed": true}'
+```
+
+Fields left out of the document keep their current value. `"description": null` clears the
+description. Unknown fields, `"completed": null`, and a document that is not a JSON object are
+rejected with 400; a body sent as plain `application/json` is rejected with 415.
 
 ## Running tests
 

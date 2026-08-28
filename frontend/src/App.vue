@@ -4,7 +4,7 @@ import { computed, onMounted, ref } from 'vue'
 import AlertDialog from '@/components/AlertDialog.vue'
 import TaskForm from '@/components/TaskForm.vue'
 import TaskList from '@/components/TaskList.vue'
-import { createTask, deleteTask, listTasks, setTaskCompleted, updateTask } from '@/api/tasks'
+import { createTask, deleteTask, listTasks, patchTask, updateTask } from '@/api/tasks'
 import type { Task, TaskInput } from '@/types/task'
 
 const tasks = ref<Task[]>([])
@@ -44,7 +44,7 @@ async function onSubmit(input: TaskInput) {
 
 async function onToggle(task: Task) {
   try {
-    await setTaskCompleted(task.id, !task.completed)
+    await patchTask(task.id, { completed: !task.completed })
     await refresh()
   } catch (err) {
     errorMessage.value = (err as Error).message

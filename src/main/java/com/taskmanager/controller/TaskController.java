@@ -1,6 +1,7 @@
-// [AI assisted 001]
+// [AI assisted 001, 005]
 package com.taskmanager.controller;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.taskmanager.dto.TaskRequest;
 import com.taskmanager.dto.TaskResponse;
 import com.taskmanager.entity.Task;
@@ -26,6 +27,9 @@ import java.util.List;
 @RequestMapping("/api/tasks")
 @Tag(name = "Tasks", description = "Task management operations")
 public class TaskController {
+
+    /** Media type registered by RFC 7396 for JSON Merge Patch documents. */
+    public static final String MERGE_PATCH_JSON = "application/merge-patch+json";
 
     private final TaskService taskService;
 
@@ -53,21 +57,19 @@ public class TaskController {
     }
 
     @PutMapping("/{id}")
-    @Operation(summary = "Update an existing task")
+    @Operation(summary = "Replace an existing task (all fields required)")
     public TaskResponse update(@PathVariable Long id, @Valid @RequestBody TaskRequest request) {
         return TaskResponse.from(taskService.update(id, request));
     }
 
-    @PatchMapping("/{id}/complete")
-    @Operation(summary = "Mark a task as completed")
-    public TaskResponse markCompleted(@PathVariable Long id) {
-        return TaskResponse.from(taskService.setCompleted(id, true));
-    }
-
-    @PatchMapping("/{id}/incomplete")
-    @Operation(summary = "Mark a task as not completed")
-    public TaskResponse markIncomplete(@PathVariable Long id) {
-        return TaskResponse.from(taskService.setCompleted(id, false));
+    @PatchMapping(path = "/{id}", consumes = MERGE_PATCH_JSON)
+    @Operation(
+            summary = "Partially update a task",
+            description = "JSON Merge Patch (RFC 7396). Send only the fields to change, e.g. "
+                    + "{\"completed\": true}. Omitted fields keep their current value; "
+                    + "\"description\": null clears the description.")
+    public TaskResponse patch(@PathVariable Long id, @RequestBody JsonNode patch) {
+        return TaskResponse.from(taskService.patch(id, patch));
     }
 
     @DeleteMapping("/{id}")

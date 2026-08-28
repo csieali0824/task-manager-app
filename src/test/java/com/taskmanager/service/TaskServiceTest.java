@@ -1,10 +1,16 @@
-// [AI assisted 004]
+// [AI assisted 004, 005]
 package com.taskmanager.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.taskmanager.dto.TaskRequest;
 import com.taskmanager.entity.Task;
+import com.taskmanager.exception.InvalidPatchException;
 import com.taskmanager.exception.TaskNotFoundException;
 import com.taskmanager.repository.TaskRepository;
+import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,6 +31,9 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class TaskServiceTest {
 
+    private static final ObjectMapper MAPPER = new ObjectMapper();
+    private static final Validator VALIDATOR = Validation.buildDefaultValidatorFactory().getValidator();
+
     @Mock
     private TaskRepository taskRepository;
 
@@ -32,8 +41,9 @@ class TaskServiceTest {
 
     @BeforeEach
     void setUp() {
-        // Constructor injection means the service needs no Spring context to build.
-        taskService = new TaskService(taskRepository);
+        // Constructor injection means the service needs no Spring context to build. The mapper
+        // and validator are the real ones: the merge and the constraints are what's under test.
+        taskService = new TaskService(taskRepository, MAPPER, VALIDATOR);
     }
 
     @Test
@@ -97,19 +107,90 @@ class TaskServiceTest {
         verify(taskRepository, never()).save(any(Task.class));
     }
 
+    // ---- patch: JSON Merge Patch semantics -------------------------------------------------
+
     @Test
-    void setCompletedChangesOnlyTheCompletedFlag() {
+    void patchChangesOnlyTheFieldsPresentInTheDocument() {
         Task existing = task("Keep this title");
         when(taskRepository.findById(1L)).thenReturn(Optional.of(existing));
         when(taskRepository.save(any(Task.class))).thenAnswer(call -> call.getArgument(0));
 
-        taskService.setCompleted(1L, true);
+        taskService.patch(1L, json("{\"completed\": true}"));
 
         Task saved = captureSavedTask();
+        assertThat(saved).isSameAs(existing);
         assertThat(saved.isCompleted()).isTrue();
         assertThat(saved.getTitle()).isEqualTo("Keep this title");
         assertThat(saved.getDescription()).isEqualTo("description");
     }
+
+    @Test
+    void patchWithNullClearsANullableField() {
+        Task existing = task("Title stays");
+        when(taskRepository.findById(1L)).thenReturn(Optional.of(existing));
+        when(taskRepository.save(any(Task.class))).thenAnswer(call -> call.getArgument(0));
+
+        taskService.patch(1L, json("{\"description\": null}"));
+
+        Task saved = captureSavedTask();
+        assertThat(saved.getDescription()).isNull();
+        assertThat(saved.getTitle()).isEqualTo("Title stays");
+    }
+
+    @Test
+    void patchRejectsBlankTitleAndDoesNotSave() {
+        when(taskRepository.findById(1L)).thenReturn(Optional.of(task("Was fine")));
+
+        assertThatThrownBy(() -> taskService.patch(1L, json("{\"title\": \"   \"}")))
+                .isInstanceOf(ConstraintViolationException.class)
+                .hasMessageContaining("must not be blank");
+
+        verify(taskRepository, never()).save(any(Task.class));
+    }
+
+    @Test
+    void patchRejectsUnknownFields() {
+        when(taskRepository.findById(1L)).thenReturn(Optional.of(task("x")));
+
+        assertThatThrownBy(() -> taskService.patch(1L, json("{\"id\": 42}")))
+                .isInstanceOf(InvalidPatchException.class)
+                .hasMessageContaining("id");
+
+        verify(taskRepository, never()).save(any(Task.class));
+    }
+
+    @Test
+    void patchRejectsNullForNonNullableField() {
+        when(taskRepository.findById(1L)).thenReturn(Optional.of(task("x")));
+
+        assertThatThrownBy(() -> taskService.patch(1L, json("{\"completed\": null}")))
+                .isInstanceOf(InvalidPatchException.class);
+
+        verify(taskRepository, never()).save(any(Task.class));
+    }
+
+    @Test
+    void patchRejectsDocumentThatIsNotAnObject() {
+        when(taskRepository.findById(1L)).thenReturn(Optional.of(task("x")));
+
+        assertThatThrownBy(() -> taskService.patch(1L, json("[{\"op\": \"replace\"}]")))
+                .isInstanceOf(InvalidPatchException.class)
+                .hasMessageContaining("JSON object");
+
+        verify(taskRepository, never()).save(any(Task.class));
+    }
+
+    @Test
+    void patchThrowsWhenTaskMissing() {
+        when(taskRepository.findById(999L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> taskService.patch(999L, json("{\"completed\": true}")))
+                .isInstanceOf(TaskNotFoundException.class);
+
+        verify(taskRepository, never()).save(any(Task.class));
+    }
+
+    // ---- delete --------------------------------------------------------------------------
 
     @Test
     void deleteRemovesTaskFoundById() {
@@ -143,5 +224,13 @@ class TaskServiceTest {
         task.setDescription("description");
         task.setCompleted(false);
         return task;
+    }
+
+    private static JsonNode json(String text) {
+        try {
+            return MAPPER.readTree(text);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Bad test JSON: " + text, e);
+        }
     }
 }

@@ -1,4 +1,4 @@
-// [AI assisted 001]
+// [AI assisted 001, 005]
 import type { Task, TaskInput } from '@/types/task'
 
 const BASE_URL = '/api/tasks'
@@ -34,9 +34,15 @@ export function updateTask(id: number, input: TaskInput): Promise<Task> {
   }).then((res) => handle<Task>(res))
 }
 
-export function setTaskCompleted(id: number, completed: boolean): Promise<Task> {
-  return fetch(`${BASE_URL}/${id}/${completed ? 'complete' : 'incomplete'}`, {
+/**
+ * JSON Merge Patch (RFC 7396): send only the fields to change. The media type is what tells
+ * the server how to read the body, so it is not plain application/json.
+ */
+export function patchTask(id: number, changes: Partial<TaskInput>): Promise<Task> {
+  return fetch(`${BASE_URL}/${id}`, {
     method: 'PATCH',
+    headers: { 'Content-Type': 'application/merge-patch+json' },
+    body: JSON.stringify(changes),
   }).then((res) => handle<Task>(res))
 }
 

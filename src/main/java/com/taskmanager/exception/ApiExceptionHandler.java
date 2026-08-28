@@ -1,6 +1,7 @@
-// [AI assisted 001]
+// [AI assisted 001, 005]
 package com.taskmanager.exception;
 
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -26,6 +27,26 @@ public class ApiExceptionHandler {
                 .reduce((a, b) -> a + "; " + b)
                 .orElse("Validation failed");
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body(HttpStatus.BAD_REQUEST, message));
+    }
+
+    /**
+     * Raised by the merge-patch path, where validation runs on the merged result inside the
+     * service rather than through @Valid on the controller argument. Formatted the same way as
+     * handleValidation so clients see one error shape for both.
+     */
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<Map<String, Object>> handleConstraintViolation(ConstraintViolationException ex) {
+        String message = ex.getConstraintViolations().stream()
+                .map(v -> v.getPropertyPath() + ": " + v.getMessage())
+                .sorted()
+                .reduce((a, b) -> a + "; " + b)
+                .orElse("Validation failed");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body(HttpStatus.BAD_REQUEST, message));
+    }
+
+    @ExceptionHandler(InvalidPatchException.class)
+    public ResponseEntity<Map<String, Object>> handleInvalidPatch(InvalidPatchException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body(HttpStatus.BAD_REQUEST, ex.getMessage()));
     }
 
     private Map<String, Object> body(HttpStatus status, String message) {

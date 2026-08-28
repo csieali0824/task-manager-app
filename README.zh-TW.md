@@ -108,10 +108,20 @@ Icon 適合每列重複出現、情境本身就看得懂的操作，但送出按
 | GET    | `/api/tasks`                 | 列出所有任務                             |
 | GET    | `/api/tasks/{id}`            | 取得單一任務                             |
 | POST   | `/api/tasks`                 | 新增任務                                 |
-| PUT    | `/api/tasks/{id}`            | 更新任務的 title/description/completed   |
-| PATCH  | `/api/tasks/{id}/complete`   | 標記任務為已完成                         |
-| PATCH  | `/api/tasks/{id}/incomplete` | 標記任務為未完成                         |
+| PUT    | `/api/tasks/{id}`            | 整筆替換任務，所有欄位都要帶             |
+| PATCH  | `/api/tasks/{id}`            | 部分更新，格式為 JSON Merge Patch（RFC 7396）。只送要改的欄位，Content-Type 是 `application/merge-patch+json` |
 | DELETE | `/api/tasks/{id}`            | 刪除任務                                 |
+
+標記完成就是只帶一個欄位的 merge patch：
+
+```bash
+curl -X PATCH http://localhost:8080/api/tasks/1 \
+  -H 'Content-Type: application/merge-patch+json' \
+  -d '{"completed": true}'
+```
+
+沒寫進文件的欄位維持原值。`"description": null` 會把描述清空。未知欄位、`"completed": null`，
+以及不是 JSON 物件的文件都會回 400；用一般的 `application/json` 送過來會回 415。
 
 ## 執行測試
 
