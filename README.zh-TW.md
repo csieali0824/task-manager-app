@@ -109,19 +109,10 @@ Icon 適合每列重複出現、情境本身就看得懂的操作，但送出按
 | GET    | `/api/tasks/{id}`            | 取得單一任務                             |
 | POST   | `/api/tasks`                 | 新增任務                                 |
 | PUT    | `/api/tasks/{id}`            | 整筆替換任務，所有欄位都要帶             |
-| PATCH  | `/api/tasks/{id}`            | 部分更新，格式為 JSON Merge Patch（RFC 7396）。只送要改的欄位，Content-Type 是 `application/merge-patch+json` |
 | DELETE | `/api/tasks/{id}`            | 刪除任務                                 |
 
-標記完成就是只帶一個欄位的 merge patch：
-
-```bash
-curl -X PATCH http://localhost:8080/api/tasks/1 \
-  -H 'Content-Type: application/merge-patch+json' \
-  -d '{"completed": true}'
-```
-
-沒寫進文件的欄位維持原值。`"description": null` 會把描述清空。未知欄位、`"completed": null`，
-以及不是 JSON 物件的文件都會回 400；用一般的 `application/json` 送過來會回 415。
+沒有 PATCH。標記完成就是把整筆任務用 PUT 送回去，只把 `completed` 反過來；前端從清單拿到的
+本來就是完整資料，多開一個部分更新的端點只會多一條程式路徑，省不到任何一次請求。
 
 ## 執行測試
 

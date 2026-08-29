@@ -4,7 +4,7 @@ import { computed, onMounted, ref } from 'vue'
 import AlertDialog from '@/components/AlertDialog.vue'
 import TaskForm from '@/components/TaskForm.vue'
 import TaskList from '@/components/TaskList.vue'
-import { createTask, deleteTask, listTasks, patchTask, updateTask } from '@/api/tasks'
+import { createTask, deleteTask, listTasks, updateTask } from '@/api/tasks'
 import type { Task, TaskInput } from '@/types/task'
 
 const tasks = ref<Task[]>([])
@@ -48,7 +48,13 @@ async function onSubmit(input: TaskInput) {
 
 async function onToggle(task: Task) {
   try {
-    await patchTask(task.id, { completed: !task.completed })
+    // PUT replaces the whole task. The list row already holds every field, so send it back
+    // unchanged apart from the flag.
+    await updateTask(task.id, {
+      title: task.title,
+      description: task.description,
+      completed: !task.completed,
+    })
     await refresh()
   } catch (err) {
     errorMessage.value = (err as Error).message

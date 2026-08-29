@@ -9,6 +9,6 @@ export interface Task {
 
 export interface TaskInput {
   title: string
-  description: string
+  description: string | null
   completed: boolean
 }

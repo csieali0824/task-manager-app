@@ -36,6 +36,12 @@ binding existed, `mvn verify` reported BUILD SUCCESS while running zero tests.
 
 ## Local environment gotchas
 
+- Maven is the standalone install at `C:\tools\apache-maven-3.9.6\bin` (system PATH, fixed
+  2026-08-29; the previous entry pointed at an IntelliJ plugin directory that vanished on an
+  IDE update). If `mvn: command not found` ever returns, call that path directly.
+- Git Bash keeps its working directory between tool calls. Run Maven from the repo root
+  explicitly (`cd /d/task-manager-app && mvn …`) after any `cd frontend`; a `mvn` run from
+  `frontend/` finds no pom and leaves the stale reports in `target/` looking current.
 - A long-running IDE instance often holds port 8080 with stale code. Before smoke-testing a
   backend change, check `netstat -ano | grep :8080`; run on 8081 rather than killing it.
 - Git Bash on Windows mangles non-ASCII in `curl -d`. Use ASCII payloads in shell smoke tests.
@@ -56,18 +62,16 @@ error body always includes; integration tests assert `doesNotContain("path")` as
 handler ran, and the frontend `handle()` in `api/tasks.ts` reads `message`. Any new exception
 type needs a handler there or it surfaces as a 500 with the wrong shape.
 
-**PATCH is JSON Merge Patch (RFC 7396), not action endpoints.** `PATCH /api/tasks/{id}`
-consumes only `application/merge-patch+json`; plain `application/json` gets 415. The controller
-takes `JsonNode`, not a DTO, because a DTO cannot distinguish "field absent" from "field null".
-`TaskService.merge` overlays the patch onto `TaskRequest.from(task)` with `ObjectNode.setAll`,
-then deserializes with `FAIL_ON_UNKNOWN_PROPERTIES` and `FAIL_ON_NULL_FOR_PRIMITIVES` so unknown
-fields and `"completed": null` are 400s. Validation runs on the merged result via the injected
-`Validator` (not `@Valid`), so failures arrive as `ConstraintViolationException`. Do not
-reintroduce `/{id}/complete`-style endpoints.
+**There is no PATCH, on purpose.** The checkbox toggles completion with `PUT /api/tasks/{id}`
+carrying the whole task (`App.vue` `onToggle`), because the list row already holds every field.
+Two earlier designs were tried and removed on 2026-08-29: `PATCH /{id}/complete` +
+`/incomplete` action endpoints, and a JSON Merge Patch endpoint. Neither bought anything for a
+three-field, single-user resource, and the merge-patch version added ~300 lines. Only revisit
+PATCH if the resource grows large, clients stop holding the full object, or concurrent editors
+make lost updates a real problem.
 
-`TaskService` takes `(TaskRepository, ObjectMapper, Validator)`; `TaskServiceTest` constructs it
-directly with a real `ObjectMapper` and `Validation.buildDefaultValidatorFactory()`, no Spring
-context.
+`TaskService` takes only `TaskRepository`; `TaskServiceTest` constructs it directly with a
+Mockito mock, no Spring context.
 
 ## Frontend architecture
 
