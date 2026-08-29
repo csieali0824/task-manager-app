@@ -13,6 +13,10 @@ frontend/dist-ssr/
 *.iml
 .vscode/
 
+# Local MCP server config (per-machine, e.g. the IntelliJ MCP endpoint)
+.mcp.json
+.playwright-mcp/
+
 # OS
 .DS_Store
 Thumbs.db
