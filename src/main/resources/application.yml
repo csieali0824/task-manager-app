@@ -17,6 +17,14 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: false
+  ai:
+    mcp:
+      server:
+        name: task-manager
+        version: 0.0.1
+        # Streamable HTTP transport (MCP SDK 0.13.1): more robust reconnect and version
+        # negotiation than the older SSE transport. Clients connect to http://localhost:8081/mcp
+        protocol: STREAMABLE
 
 springdoc:
   swagger-ui:
