@@ -43,6 +43,10 @@ async function onSubmit(input: TaskInput) {
     await refresh()
   } catch (err) {
     errorMessage.value = (err as Error).message
+    // Reload after a failure too: if the save failed because the task no longer
+    // exists (e.g. the backend restarted and cleared H2), refresh() drops the stale
+    // editingTask so the form leaves edit mode instead of retrying a failing PUT.
+    await refresh()
   }
 }
 
