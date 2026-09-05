@@ -19,7 +19,9 @@ export default defineConfig({
     // port: 3000,
     proxy: {
       '/api': {
-        target: 'http://localhost:8080',
+        // [C practice] temporarily pointed at the MCP-enabled backend on 8081 so the browser
+        // and the MCP tools share one backend. Revert to 8080 when done.
+        target: 'http://localhost:8082',
         changeOrigin: true,
       },
     },
